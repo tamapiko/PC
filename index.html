@@ -3,100 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>仮想OS</title>
+  <title>OSファイルアップロード</title>
   <style>
-    /* ページ全体の設定 */
     body, html {
+      font-family: Arial, sans-serif;
+      height: 100%;
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
     }
-
-    /* 仮想OS表示コンテナ */
-    #vm-container {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-color: black;
+    #upload-container {
+      text-align: center;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 400px;
     }
-
-    /* iframe（仮想マシンの表示領域） */
-    #vm-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    input[type="file"] {
+      margin: 10px 0;
     }
-
-    /* フルスクリーンボタン */
-    #fullscreen-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: #007bff;
+    button {
+      background-color: #4CAF50;
       color: white;
       padding: 10px 20px;
       border: none;
       cursor: pointer;
-      z-index: 10;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
 
-  <!-- 仮想マシン表示領域 -->
-  <div id="vm-container">
-    <!-- 仮想OSのURLをここに追加 -->
-    <iframe id="vm-frame" src="https://あなたの仮想OSURL" allowfullscreen></iframe>
+  <div id="upload-container">
+    <h2>OSファイルアップロード</h2>
+    <p>仮想マシンに使用するOSのISOファイルをアップロードしてください。</p>
+    
+    <input type="file" id="file-upload" accept=".iso"/>
+    <br>
+    <button onclick="uploadFile()">アップロード</button>
+    <p id="status"></p>
   </div>
 
-  <!-- フルスクリーンボタン -->
-  <button id="fullscreen-btn">全画面</button>
-
   <script>
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    const vmContainer = document.getElementById('vm-container');
-
-    // フルスクリーンモードのトグル
-    fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        if (vmContainer.requestFullscreen) {
-          vmContainer.requestFullscreen();
-        } else if (vmContainer.mozRequestFullScreen) { // Firefox用
-          vmContainer.mozRequestFullScreen();
-        } else if (vmContainer.webkitRequestFullscreen) { // Chrome用
-          vmContainer.webkitRequestFullscreen();
-        } else if (vmContainer.msRequestFullscreen) { // IE用
-          vmContainer.msRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
+    function uploadFile() {
+      const fileInput = document.getElementById('file-upload');
+      const statusText = document.getElementById('status');
+      
+      if (fileInput.files.length === 0) {
+        statusText.innerHTML = 'ファイルを選択してください。';
+        return;
       }
-    });
 
-    // ページが読み込まれた時に自動でフルスクリーン化
-    window.onload = function () {
-      if (vmContainer.requestFullscreen) {
-        vmContainer.requestFullscreen();
-      } else if (vmContainer.mozRequestFullScreen) {
-        vmContainer.mozRequestFullScreen();
-      } else if (vmContainer.webkitRequestFullscreen) {
-        vmContainer.webkitRequestFullscreen();
-      } else if (vmContainer.msRequestFullscreen) {
-        vmContainer.msRequestFullscreen();
+      const file = fileInput.files[0];
+      if (file.type !== 'application/x-iso9660-image') {
+        statusText.innerHTML = 'ISOファイルを選択してください。';
+        return;
       }
-    };
+
+      // フォームデータの作成
+      const formData = new FormData();
+      formData.append("iso", file);
+
+      // アップロード処理
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        statusText.innerHTML = 'アップロードが完了しました: ' + data.filename;
+      })
+      .catch(error => {
+        statusText.innerHTML = 'アップロードに失敗しました。';
+        console.error(error);
+      });
+    }
   </script>
 
 </body>
