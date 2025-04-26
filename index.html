@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ISOファイルアップロード - 仮想マシン起動</title>
+  <title>仮想マシン起動 - OSプログラム実行</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,10 +51,10 @@
 <body>
 
   <div id="container">
-    <h2>ISOファイルをアップロードして仮想マシンを起動</h2>
+    <h2>OSプログラムを実行 - ISOファイルをアップロード</h2>
     <input type="file" id="upload-input" accept=".iso"/>
     <br>
-    <button onclick="loadAndRunISO()">アップロードして仮想マシンを起動</button>
+    <button onclick="loadAndRunISO()">仮想マシンを起動</button>
     <div id="output"></div>
     <canvas id="vmCanvas"></canvas> <!-- 仮想マシンの出力用 -->
   </div>
