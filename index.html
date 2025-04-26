@@ -2,86 +2,92 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ブラウザOSエミュレーター</title>
+  <title>ブラウザOSエミュレータ</title>
   <style>
-    body {
+    body, html {
       margin: 0;
-      background: #000;
+      padding: 0;
       overflow: hidden;
-    }
-    #screen {
-      width: 100vw;
-      height: 100vh;
-      background: #000;
+      height: 100%;
+      background: black;
     }
     #controls {
       position: absolute;
       top: 10px;
       left: 10px;
-      z-index: 100;
+      z-index: 10;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 8px;
     }
-    #controls button {
-      margin-right: 5px;
-      padding: 5px 10px;
+    #screen {
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: block;
     }
-    #controls input {
-      margin-bottom: 10px;
+    button {
+      margin-top: 5px;
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div id="controls">
-    <input type="file" id="iso" accept=".iso,.img">
-    <button onclick="fullscreen()">全画面</button>
-  </div>
-  <canvas id="screen"></canvas>
 
-  <!-- libv86.jsを最後に読み込む -->
-  <script src="js/libv86.js"></script> <!-- GitHub Pagesで配置したlibv86.js -->
+<div id="controls">
+  <input type="file" id="iso" accept=".iso,.img"><br>
+  <button onclick="enterFullscreen()">全画面表示</button>
+</div>
 
-  <script>
-    window.onload = function() {
-      // まず、libv86.jsが正しく読み込まれているか確認します
-      if (typeof V86Starter === 'undefined') {
-        console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
-        return;
-      }
+<canvas id="screen"></canvas>
 
-      // エミュレーター設定
-      const emulator = new V86Starter({
-        wasm_path: "js/v86.wasm",  // v86.wasmのパス（GitHub Pages上）
-        memory_size: 512 * 1024 * 1024,  // メモリサイズ（512MB）
-        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリサイズ（8MB）
-        screen_container: document.getElementById("screen"),  // 描画先canvas
-        bios: { url: "bios/seabios.bin" },  // BIOSファイルのパス
-        vga_bios: { url: "bios/vgabios.bin" },  // VGA BIOSファイルのパス
-        autostart: false,  // 自動起動無効
-      });
+<!-- libv86.jsを先に読み込む -->
+<script src="js/libv86.js"></script>
 
-      // ISOファイル選択時の処理
-      document.getElementById("iso").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function() {
-            emulator.create_cd(reader.result);  // ISOファイルを仮想CDにセット
-            emulator.run();  // エミュレーター起動
-          };
-          reader.readAsArrayBuffer(file);
-        }
-      });
+<script>
+window.onload = function() {
+  if (typeof V86Starter === "undefined") {
+    console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
+    return;
+  }
 
-      // 全画面表示
-      window.fullscreen = function() {
-        const canvas = document.getElementById("screen");
-        if (canvas.requestFullscreen) {
-          canvas.requestFullscreen();
-        } else if (canvas.webkitRequestFullscreen) {
-          canvas.webkitRequestFullscreen();
-        }
+  const emulator = new V86Starter({
+    wasm_path: "js/v86.wasm",
+    memory_size: 256 * 1024 * 1024, // メモリサイズ（256MB）
+    vga_memory_size: 8 * 1024 * 1024,
+    screen_container: document.getElementById("screen"),
+    bios: { url: "bios/seabios.bin" },
+    vga_bios: { url: "bios/vgabios.bin" },
+    autostart: false,
+  });
+
+  document.getElementById("iso").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        emulator.create_cd(reader.result);
+        emulator.run();
       };
-    };
-  </script>
+      reader.readAsArrayBuffer(file);
+    }
+  });
+};
+
+// 全画面化
+function enterFullscreen() {
+  const canvas = document.getElementById("screen");
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  } else if (canvas.webkitRequestFullscreen) {
+    canvas.webkitRequestFullscreen();
+  } else if (canvas.mozRequestFullScreen) {
+    canvas.mozRequestFullScreen();
+  } else if (canvas.msRequestFullscreen) {
+    canvas.msRequestFullscreen();
+  }
+}
+</script>
+
 </body>
 </html>
