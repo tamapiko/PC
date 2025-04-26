@@ -21,29 +21,32 @@
   <script src="./libv86.js"></script>
 
   <script>
+    // libv86.js が読み込まれてから実行するようにする
     window.onload = function() {
       const emulator = new V86Starter({
-        wasm_path: "./v86.wasm",
-        memory_size: 512 * 1024 * 1024,
-        vga_memory_size: 8 * 1024 * 1024,
-        screen_container: document.getElementById("screen"),
-        bios: { url: "./bios/seabios.bin" },
-        vga_bios: { url: "./bios/vgabios.bin" },
-        autostart: false,
+        wasm_path: "./v86.wasm",  // wasmバイナリのパス
+        memory_size: 512 * 1024 * 1024,  // メモリ設定
+        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリ設定
+        screen_container: document.getElementById("screen"),  // 描画先のcanvas
+        bios: { url: "./bios/seabios.bin" },  // BIOSのパス
+        vga_bios: { url: "./bios/vgabios.bin" },  // VGA BIOSのパス
+        autostart: false,  // 自動起動オプション
       });
 
+      // ISOファイルが選択されたときに仮想CDを作成して起動
       document.getElementById("iso").addEventListener("change", function(e) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function() {
-            emulator.create_cd(reader.result);
-            emulator.run();
+            emulator.create_cd(reader.result);  // ISOファイルを仮想CDにセット
+            emulator.run();  // 仮想マシンを起動
           };
           reader.readAsArrayBuffer(file);
         }
       });
 
+      // 全画面表示
       function fullscreen() {
         const canvas = document.getElementById("screen");
         if (canvas.requestFullscreen) {
