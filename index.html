@@ -1,76 +1,31 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブラウザOSエミュレータ</title>
+    <title>PC Emulator</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
         #screen {
             width: 100%;
-            height: 100%;
-            background: #000;
-        }
-        #upload {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
+            height: 100vh;
+            background-color: black;
         }
     </style>
 </head>
 <body>
-
-<input type="file" id="upload" accept=".iso">
-<canvas id="screen"></canvas>
-
-<script src="./libv86.js"></script>
-<script>
-window.onload = function() {
-    if (typeof V86Starter === 'undefined') {
-        console.error("[致命的エラー] V86Starterが正しく読み込まれていません！libv86.js のパスまたはファイルを確認してください。")
-        alert("V86Starterが読み込めていません。libv86.jsが存在するかチェックしてください。");
-        return;
-    }
-
-    let emulator;
-    const upload = document.getElementById('upload');
-
-    upload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const buffer = event.target.result;
-            if (emulator) {
-                emulator.stop();
-            }
-
-            emulator = new V86Starter({
-                wasm_path: "./v86.wasm",  // wasmファイルは一応指定しておきます（本格運用用）
+    <div id="screen"></div>
+    <script src="libv86.js"></script>
+    <script>
+        window.onload = function () {
+            new V86Starter({
+                screen_container: document.getElementById("screen"),
                 memory_size: 512 * 1024 * 1024,
                 vga_memory_size: 8 * 1024 * 1024,
-                screen_container: document.getElementById("screen"),
-                bios: { url: "./bios/seabios.bin" },
-                vga_bios: { url: "./bios/vgabios.bin" },
-                cdrom: { buffer },
+                bios: { url: "bios/seabios.bin" },
+                vga_bios: { url: "bios/vgabios.bin" },
                 autostart: true,
             });
         };
-        reader.readAsArrayBuffer(file);
-    });
-};
-</script>
-
+    </script>
 </body>
 </html>
