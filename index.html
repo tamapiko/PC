@@ -3,89 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OSファイルアップロード</title>
+  <title>ISOファイルアップロード - 仮想マシン起動</title>
   <style>
-    body, html {
+    body {
       font-family: Arial, sans-serif;
-      height: 100%;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #f0f0f0;
+      height: 100vh;
+      background-color: #f4f4f4;
     }
-    #upload-container {
+    #container {
       text-align: center;
       padding: 20px;
-      background-color: #fff;
+      background-color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 80%;
-      max-width: 400px;
     }
-    input[type="file"] {
+    #upload-input {
       margin: 10px 0;
     }
     button {
+      padding: 10px 20px;
       background-color: #4CAF50;
       color: white;
-      padding: 10px 20px;
       border: none;
       cursor: pointer;
-      border-radius: 4px;
       font-size: 16px;
+      border-radius: 5px;
     }
     button:hover {
       background-color: #45a049;
+    }
+    #output {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div id="upload-container">
-    <h2>OSファイルアップロード</h2>
-    <p>仮想マシンに使用するOSのISOファイルをアップロードしてください。</p>
-    
-    <input type="file" id="file-upload" accept=".iso"/>
+  <div id="container">
+    <h2>ISOファイルをアップロードして仮想マシンを起動</h2>
+    <input type="file" id="upload-input" accept=".iso"/>
     <br>
-    <button onclick="uploadFile()">アップロード</button>
-    <p id="status"></p>
+    <button onclick="loadAndRunISO()">アップロードして仮想マシンを起動</button>
+    <div id="output"></div>
   </div>
 
+  <script src="https://bellard.org/betty/compile/v86/v86.js"></script>
   <script>
-    function uploadFile() {
-      const fileInput = document.getElementById('file-upload');
-      const statusText = document.getElementById('status');
+    function loadAndRunISO() {
+      const fileInput = document.getElementById('upload-input');
+      const outputDiv = document.getElementById('output');
       
       if (fileInput.files.length === 0) {
-        statusText.innerHTML = 'ファイルを選択してください。';
+        outputDiv.innerHTML = 'ISOファイルを選択してください。';
         return;
       }
-
+      
       const file = fileInput.files[0];
+      
       if (file.type !== 'application/x-iso9660-image') {
-        statusText.innerHTML = 'ISOファイルを選択してください。';
+        outputDiv.innerHTML = 'ISOファイルを選択してください。';
         return;
       }
 
-      // フォームデータの作成
-      const formData = new FormData();
-      formData.append("iso", file);
+      const reader = new FileReader();
+      
+      reader.onload = function (e) {
+        const buffer = e.target.result;
+        
+        const vm = new V86({
+          memory_size: 512, 
+          vga_memory_size: 16, 
+          fullscreen: true,
+          on_run: function () {
+            outputDiv.innerHTML = '';  // 仮想マシンが起動したら出力をクリア
+          }
+        });
+        
+        // ISOファイルを仮想マシンに読み込む
+        vm.boot_from_arraybuffer(buffer);
 
-      // アップロード処理
-      fetch('/upload', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        statusText.innerHTML = 'アップロードが完了しました: ' + data.filename;
-      })
-      .catch(error => {
-        statusText.innerHTML = 'アップロードに失敗しました。';
-        console.error(error);
-      });
+        // 仮想マシンの出力を画面に表示
+        outputDiv.appendChild(vm.canvas);
+      };
+      
+      reader.readAsArrayBuffer(file);
     }
   </script>
 
