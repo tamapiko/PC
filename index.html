@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ブラウザ仮想マシン (SimpleVM with Upload)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        button, input[type="file"] {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        pre {
+            background: #222;
+            color: #0f0;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ブラウザ仮想マシン (SimpleVM with Upload)</h1>
+    <input type="file" id="fileInput" accept=".bin">
+    <button onclick="runVM()">仮想マシンを起動！</button>
+    <pre id="output">ここに仮想マシンの出力結果が表示されます</pre>
+
+    <script>
+        class SimpleVM {
+            constructor(memorySize) {
+                this.memory = new Uint8Array(memorySize); // 仮想RAM
+                this.registers = new Uint8Array(4);        // 仮想レジスタ
+                this.pc = 0;                               // プログラムカウンタ
+                this.output = "";                          // 出力ログ
+            }
+
+            loadProgram(program) {
+                this.memory.set(program, 0);
+            }
+
+            run() {
+                while (this.pc < this.memory.length) {
+                    let opcode = this.memory[this.pc++];
+                    switch(opcode) {
+                        case 0x01: // MOV R0, 値
+                            this.registers[0] = this.memory[this.pc++];
+                            this.log(`MOV R0, ${this.registers[0]}`);
+                            break;
+                        case 0x02: // ADD R0, 値
+                            this.registers[0] += this.memory[this.pc++];
+                            this.log(`ADD R0, ${this.registers[0]}`);
+                            break;
+                        case 0xFF: // HALT
+                            this.log("VM Halted. R0=" + this.registers[0]);
+                            return;
+                        default:
+                            this.log(`Unknown opcode: ${opcode}`);
+                            return;
+                    }
+                }
+            }
+
+            log(text) {
+                this.output += text + "\n";
+            }
+        }
+
+        let uploadedProgram = null;
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                uploadedProgram = new Uint8Array(arrayBuffer);
+                document.getElementById('output').textContent = "ファイル読み込み完了！仮想マシン起動ボタンを押してください。";
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function runVM() {
+            if (!uploadedProgram) {
+                alert("先にOSファイル(.bin)をアップロードしてください！");
+                return;
+            }
+
+            const vm = new SimpleVM(1024);
+            vm.loadProgram(uploadedProgram);
+            vm.run();
+
+            document.getElementById("output").textContent = vm.output;
+        }
+    </script>
+</body>
+</html>
