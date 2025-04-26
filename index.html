@@ -40,6 +40,12 @@
     #output {
       margin-top: 20px;
     }
+    #vmCanvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -50,6 +56,7 @@
     <br>
     <button onclick="loadAndRunISO()">アップロードして仮想マシンを起動</button>
     <div id="output"></div>
+    <canvas id="vmCanvas"></canvas> <!-- 仮想マシンの出力用 -->
   </div>
 
   <!-- v86.jsライブラリの読み込み (jsdelivr CDNを使用) -->
@@ -58,23 +65,24 @@
     function loadAndRunISO() {
       const fileInput = document.getElementById('upload-input');
       const outputDiv = document.getElementById('output');
-      
+      const canvas = document.getElementById('vmCanvas');
+
       if (fileInput.files.length === 0) {
         outputDiv.innerHTML = 'ISOファイルを選択してください。';
         return;
       }
-      
+
       const file = fileInput.files[0];
-      
+
       console.log('選択されたファイル:', file.name, file.type);  // デバッグ用にファイルの情報を出力
-      
+
       if (file.type !== 'application/x-iso9660-image') {
         outputDiv.innerHTML = 'ISOファイルを選択してください。';
         return;
       }
 
       const reader = new FileReader();
-      
+
       reader.onload = function (e) {
         const buffer = e.target.result;
 
@@ -83,6 +91,7 @@
           memory_size: 512,  // メモリサイズ
           vga_memory_size: 8,  // VGAメモリサイズ
           fullscreen: false,  // フルスクリーンを有効にするか
+          canvas: canvas, // 仮想マシンの画面をこのcanvasに表示
           on_run: function () {
             outputDiv.innerHTML = '';  // 仮想マシンが起動したら出力をクリア
           }
@@ -91,10 +100,10 @@
         // ISOファイルを仮想マシンに読み込む
         vm.boot_from_arraybuffer(buffer);
 
-        // 仮想マシンの出力を画面に表示
-        outputDiv.appendChild(vm.canvas);
+        // 仮想マシンがcanvasに描画する
+        console.log("仮想マシンが起動中...");
       };
-      
+
       reader.readAsArrayBuffer(file);
     }
   </script>
