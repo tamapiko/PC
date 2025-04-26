@@ -15,25 +15,31 @@
 <body>
     <div id="screen"></div>
 
-    <!-- libv86.js を CDN から読み込む -->
-    <script src="https://cdn.jsdelivr.net/npm/v86@0.0.0-alpha.19/libv86.js"></script>
+    <!-- libv86.js を CDN から読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/v86@0.0.0-alpha.18/libv86.js"></script>
 
     <script>
         window.onload = function () {
-            // エラーハンドリングを追加して、V86Starterが読み込まれているかを確認
+            // V86Starterが読み込まれているか確認
             if (typeof V86Starter === "undefined") {
                 console.error("V86Starterが正しく読み込まれていません。");
                 return;
             }
 
-            new V86Starter({
-                screen_container: document.getElementById("screen"),
-                memory_size: 512 * 1024 * 1024,  // 512MB メモリ
-                vga_memory_size: 8 * 1024 * 1024,  // VGA メモリ 8MB
-                bios: { url: "bios/seabios.bin" },  // seabios のパス
-                vga_bios: { url: "bios/vgabios.bin" },  // vgabios のパス
-                autostart: true,  // 自動起動
-            });
+            try {
+                // エミュレータの設定
+                new V86Starter({
+                    screen_container: document.getElementById("screen"),
+                    memory_size: 512 * 1024 * 1024,  // 512MB メモリ
+                    vga_memory_size: 8 * 1024 * 1024,  // VGA メモリ 8MB
+                    bios: { url: "bios/seabios.bin" },  // seabios のパス
+                    vga_bios: { url: "bios/vgabios.bin" },  // vgabios のパス
+                    autostart: true,  // 自動起動
+                });
+                console.log("エミュレータが正常に起動しました。");
+            } catch (error) {
+                console.error("エミュレータの初期化に失敗しました:", error);
+            }
         };
     </script>
 </body>
