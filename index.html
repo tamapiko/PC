@@ -17,12 +17,17 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <!-- libv86.js の読み込み -->
+  <!-- libv86.js の読み込み（ファイルのパスが正しいか確認） -->
   <script src="./libv86.js"></script>
 
   <script>
-    // libv86.js が読み込まれてから実行するようにする
+    // libv86.js がロードされた後に実行
     window.onload = function() {
+      if (typeof V86Starter === 'undefined') {
+        console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
+        return;
+      }
+
       const emulator = new V86Starter({
         wasm_path: "./v86.wasm",  // wasmバイナリのパス
         memory_size: 512 * 1024 * 1024,  // メモリ設定
