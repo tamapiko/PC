@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ブラウザOS起動（修正版）</title>
+  <title>ブラウザOS起動（完全自作版）</title>
   <style>
     body { margin: 0; background: #000; overflow: hidden; }
     #screen { width: 100vw; height: 100vh; background: #000; }
@@ -12,23 +12,25 @@
 </head>
 <body>
   <div id="controls">
-    <input type="file" id="iso" accept=".iso">
+    <input type="file" id="iso" accept=".iso,.img">
     <button onclick="fullscreen()">全画面</button>
   </div>
   <canvas id="screen"></canvas>
 
-  <script src="https://copy.v86.dev/libv86.js"></script>
+  <!-- 自分のリポジトリの中に置いたlibv86.jsを読み込む -->
+  <script src="./libv86.js"></script>
   <script>
     const emulator = new V86Starter({
-      wasm_path: "https://copy.v86.dev/v86.wasm",
+      wasm_path: "./v86.wasm",
       memory_size: 512 * 1024 * 1024, // 512MB
-      vga_memory_size: 8 * 1024 * 1024,
+      vga_memory_size: 8 * 1024 * 1024, // 8MB
       screen_container: document.getElementById("screen"),
-      bios: { url: "https://copy.v86.dev/seabios.bin" },
-      vga_bios: { url: "https://copy.v86.dev/vgabios.bin" },
+      bios: { url: "./seabios.bin" },
+      vga_bios: { url: "./vgabios.bin" },
       autostart: false,
     });
 
+    // ISOファイルを選んだら仮想マシンにマウントして起動
     document.getElementById("iso").addEventListener("change", function(e) {
       const file = e.target.files[0];
       if (file) {
@@ -41,6 +43,7 @@
       }
     });
 
+    // 全画面表示ボタン
     function fullscreen() {
       const canvas = document.getElementById("screen");
       if (canvas.requestFullscreen) {
