@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -18,38 +17,42 @@
   </div>
   <canvas id="screen"></canvas>
 
+  <!-- libv86.js の読み込み -->
   <script src="./libv86.js"></script>
+
   <script>
-    const emulator = new V86Starter({
-      wasm_path: "./v86.wasm",
-      memory_size: 512 * 1024 * 1024,
-      vga_memory_size: 8 * 1024 * 1024,
-      screen_container: document.getElementById("screen"),
-      bios: { url: "./bios/seabios.bin" },
-      vga_bios: { url: "./bios/vgabios.bin" },
-      autostart: false,
-    });
+    window.onload = function() {
+      const emulator = new V86Starter({
+        wasm_path: "./v86.wasm",
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        screen_container: document.getElementById("screen"),
+        bios: { url: "./bios/seabios.bin" },
+        vga_bios: { url: "./bios/vgabios.bin" },
+        autostart: false,
+      });
 
-    document.getElementById("iso").addEventListener("change", function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function() {
-          emulator.create_cd(reader.result);
-          emulator.run();
-        };
-        reader.readAsArrayBuffer(file);
-      }
-    });
+      document.getElementById("iso").addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function() {
+            emulator.create_cd(reader.result);
+            emulator.run();
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      });
 
-    function fullscreen() {
-      const canvas = document.getElementById("screen");
-      if (canvas.requestFullscreen) {
-        canvas.requestFullscreen();
-      } else if (canvas.webkitRequestFullscreen) {
-        canvas.webkitRequestFullscreen();
+      function fullscreen() {
+        const canvas = document.getElementById("screen");
+        if (canvas.requestFullscreen) {
+          canvas.requestFullscreen();
+        } else if (canvas.webkitRequestFullscreen) {
+          canvas.webkitRequestFullscreen();
+        }
       }
-    }
+    };
   </script>
 </body>
 </html>
