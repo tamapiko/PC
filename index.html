@@ -2,12 +2,32 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ブラウザOS起動</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ブラウザOSエミュレーター</title>
   <style>
-    body { margin: 0; background: #000; overflow: hidden; }
-    #screen { width: 100vw; height: 100vh; background: #000; }
-    #controls { position: absolute; top: 10px; left: 10px; z-index: 100; }
-    #controls button { margin-right: 5px; padding: 5px 10px; }
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    #screen {
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+    }
+    #controls button {
+      margin-right: 5px;
+      padding: 5px 10px;
+    }
+    #controls input {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -17,48 +37,50 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <!-- GitHub Pages上でlibv86.jsを読み込む -->
-  <script src="https://cdn.jsdelivr.net/npm/v86@latest/libv86.js"></script>
+  <!-- libv86.jsを読み込む -->
+  <script src="js/libv86.js"></script> <!-- GitHub Pagesで配置したlibv86.js -->
 
   <script>
     window.onload = function() {
+      // V86Starterが読み込まれていない場合
       if (typeof V86Starter === 'undefined') {
         console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
         return;
       }
 
+      // エミュレーター設定
       const emulator = new V86Starter({
-        wasm_path: "v86.wasm",  // GitHub Pagesに配置したv86.wasm
-        memory_size: 512 * 1024 * 1024,  // メモリ設定（512MB）
-        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリ（8MB）
+        wasm_path: "js/v86.wasm",  // v86.wasmのパス（GitHub Pages上）
+        memory_size: 512 * 1024 * 1024,  // メモリサイズ（512MB）
+        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリサイズ（8MB）
         screen_container: document.getElementById("screen"),  // 描画先canvas
-        bios: { url: "bios/seabios.bin" },  // GitHub Pages上のBIOSパス
-        vga_bios: { url: "bios/vgabios.bin" },  // GitHub Pages上のVGA BIOSパス
-        autostart: false,  // 自動起動を無効化
+        bios: { url: "bios/seabios.bin" },  // BIOSファイルのパス
+        vga_bios: { url: "bios/vgabios.bin" },  // VGA BIOSファイルのパス
+        autostart: false,  // 自動起動無効
       });
 
-      // ISOファイルが選択された時の処理
+      // ISOファイル選択時の処理
       document.getElementById("iso").addEventListener("change", function(e) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function() {
             emulator.create_cd(reader.result);  // ISOファイルを仮想CDにセット
-            emulator.run();  // 仮想マシンを起動
+            emulator.run();  // エミュレーター起動
           };
           reader.readAsArrayBuffer(file);
         }
       });
 
       // 全画面表示
-      function fullscreen() {
+      window.fullscreen = function() {
         const canvas = document.getElementById("screen");
         if (canvas.requestFullscreen) {
           canvas.requestFullscreen();
         } else if (canvas.webkitRequestFullscreen) {
           canvas.webkitRequestFullscreen();
         }
-      }
+      };
     };
   </script>
 </body>
