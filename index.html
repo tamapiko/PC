@@ -52,7 +52,8 @@
     <div id="output"></div>
   </div>
 
-  <script src="https://bellard.org/betty/compile/v86/v86.js"></script>
+  <!-- v86.jsライブラリの読み込み -->
+  <script src="https://unpkg.com/v86/v86.js"></script>
   <script>
     function loadAndRunISO() {
       const fileInput = document.getElementById('upload-input');
@@ -74,16 +75,17 @@
       
       reader.onload = function (e) {
         const buffer = e.target.result;
-        
-        const vm = new V86({
-          memory_size: 512, 
-          vga_memory_size: 16, 
-          fullscreen: true,
+
+        // v86仮想マシンの設定
+        const vm = new v86({
+          memory_size: 512,  // メモリサイズ
+          vga_memory_size: 8,  // VGAメモリサイズ
+          fullscreen: false,  // フルスクリーンを有効にするか
           on_run: function () {
             outputDiv.innerHTML = '';  // 仮想マシンが起動したら出力をクリア
           }
         });
-        
+
         // ISOファイルを仮想マシンに読み込む
         vm.boot_from_arraybuffer(buffer);
 
