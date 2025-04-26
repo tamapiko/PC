@@ -37,12 +37,12 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <!-- libv86.jsを読み込む -->
+  <!-- libv86.jsを最後に読み込む -->
   <script src="js/libv86.js"></script> <!-- GitHub Pagesで配置したlibv86.js -->
 
   <script>
     window.onload = function() {
-      // V86Starterが読み込まれていない場合
+      // まず、libv86.jsが正しく読み込まれているか確認します
       if (typeof V86Starter === 'undefined') {
         console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
         return;
