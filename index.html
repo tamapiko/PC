@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>ブラウザOSエミュレーター（完全版）</title>
+  <title>ブラウザOSエミュレーター（エラー詳細版）</title>
   <style>
     body, html {
       margin: 0;
@@ -18,6 +18,8 @@
       z-index: 10;
       background: rgba(0,0,0,0.5);
       padding: 10px; border-radius: 4px;
+      color: #fff;
+      font-family: sans-serif;
     }
     #screen {
       width: 100vw;
@@ -39,46 +41,62 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <!-- v86 のビルド済みライブラリを CDN から読み込み -->
-  <script src="https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/build/libv86.js"></script> <!-- :contentReference[oaicite:0]{index=0} -->
+  <!-- v86 ライブラリ -->
+  <script src="https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/build/libv86.js"></script>
+
   <script>
     window.onload = function() {
-      if (typeof V86Starter === 'undefined') {
-        console.error("V86Starterが読み込まれていません。libv86.js のパスを確認してください。");
-        return;
+      try {
+        if (typeof V86Starter === 'undefined') {
+          throw new Error("V86Starterが正しく読み込まれていません！libv86.js のパスやネットワーク接続を確認してください。");
+        }
+
+        const emulator = new V86Starter({
+          wasm_path:   "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/build/v86.wasm",
+          memory_size: 256 * 1024 * 1024,
+          vga_memory_size: 8 * 1024 * 1024,
+          screen_container: document.getElementById("screen"),
+          bios:      { url: "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/bios/seabios.bin" },
+          vga_bios:  { url: "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/bios/vgabios.bin" },
+          autostart: false,
+        });
+
+        document.getElementById("iso").addEventListener("change", function(e) {
+          const file = e.target.files[0];
+          if (!file) {
+            console.warn("ISOファイルが選択されていません。");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = function() {
+            try {
+              emulator.create_cd(reader.result);
+              emulator.run();
+              console.log("仮想マシン起動成功！");
+            } catch (err) {
+              console.error("仮想マシン起動中にエラー:", err);
+            }
+          };
+          reader.onerror = function(err) {
+            console.error("ファイル読み込み中にエラー:", err);
+          };
+          reader.readAsArrayBuffer(file);
+        });
+
+      } catch (e) {
+        console.error("[致命的エラー] エミュレータ初期化に失敗しました：", e.message);
+        console.error(e);
       }
-
-      // エミュレータ初期設定
-      const emulator = new V86Starter({
-        wasm_path:   "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/build/v86.wasm",
-        memory_size: 256 * 1024 * 1024,      // 256MB
-        vga_memory_size: 8 * 1024 * 1024,    //  8MB
-        screen_container: document.getElementById("screen"),
-        bios:      { url: "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/bios/seabios.bin" },
-        vga_bios:  { url: "https://cdn.jsdelivr.net/gh/copy/v86@5d928d4/bios/vgabios.bin" },
-        autostart: false,
-      });
-
-      // ISO ファイル選択時に仮想 CD を作成して起動
-      document.getElementById("iso").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function() {
-          emulator.create_cd(reader.result);
-          emulator.run();
-        };
-        reader.readAsArrayBuffer(file);
-      });
     };
 
-    // 全画面表示
     function enterFullscreen() {
       const c = document.getElementById("screen");
-      if      (c.requestFullscreen)       c.requestFullscreen();
+      if (c.requestFullscreen)       c.requestFullscreen();
       else if (c.webkitRequestFullscreen) c.webkitRequestFullscreen();
       else if (c.mozRequestFullScreen)    c.mozRequestFullScreen();
       else if (c.msRequestFullscreen)     c.msRequestFullscreen();
+      else
+        console.warn("このブラウザはフルスクリーンモードに対応していません。");
     }
   </script>
 
