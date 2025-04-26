@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ブラウザOS起動（本格版）</title>
+  <title>ブラウザOS起動（修正版）</title>
   <style>
     body { margin: 0; background: #000; overflow: hidden; }
     #screen { width: 100vw; height: 100vh; background: #000; }
@@ -17,15 +17,15 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <script src="https://cdn.jsdelivr.net/npm/v86/build/v86.all.js"></script>
+  <script src="https://copy.v86.dev/libv86.js"></script>
   <script>
     const emulator = new V86Starter({
-      wasm_path: "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm",
+      wasm_path: "https://copy.v86.dev/v86.wasm",
       memory_size: 512 * 1024 * 1024, // 512MB
       vga_memory_size: 8 * 1024 * 1024,
       screen_container: document.getElementById("screen"),
-      bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin" },
-      vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin" },
+      bios: { url: "https://copy.v86.dev/seabios.bin" },
+      vga_bios: { url: "https://copy.v86.dev/vgabios.bin" },
       autostart: false,
     });
 
