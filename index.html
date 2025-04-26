@@ -3,24 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>仮想マシン起動 - OSプログラム実行</title>
+  <title>ブラウザで仮想マシンを実行</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       background-color: #f4f4f4;
+      margin: 0;
     }
     #container {
       text-align: center;
       padding: 20px;
       background-color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     #upload-input {
       margin: 10px 0;
@@ -59,8 +58,8 @@
     <canvas id="vmCanvas"></canvas> <!-- 仮想マシンの出力用 -->
   </div>
 
-  <!-- v86.jsライブラリの読み込み (jsdelivr CDNを使用) -->
-  <script src="https://cdn.jsdelivr.net/gh/copy/v86/v86.js"></script>
+  <!-- v86.jsライブラリの読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/v86@0.1.1/dist/v86.min.js"></script>
   <script>
     function loadAndRunISO() {
       const fileInput = document.getElementById('upload-input');
@@ -74,8 +73,7 @@
 
       const file = fileInput.files[0];
 
-      console.log('選択されたファイル:', file.name, file.type);  // デバッグ用にファイルの情報を出力
-
+      // ISOファイルタイプを確認
       if (file.type !== 'application/x-iso9660-image') {
         outputDiv.innerHTML = 'ISOファイルを選択してください。';
         return;
