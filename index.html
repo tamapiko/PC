@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ブラウザOS起動（完全自作版）</title>
+  <title>ブラウザOS起動</title>
   <style>
     body { margin: 0; background: #000; overflow: hidden; }
     #screen { width: 100vw; height: 100vh; background: #000; }
@@ -17,11 +17,10 @@
   </div>
   <canvas id="screen"></canvas>
 
-  <!-- libv86.js の読み込み（ファイルのパスが正しいか確認） -->
-  <script src="./libv86.js"></script>
+  <!-- CDNでlibv86.jsを読み込む -->
+  <script src="https://cdn.jsdelivr.net/npm/v86@0.0.0-alpha.19/libv86.js"></script>
 
   <script>
-    // libv86.js がロードされた後に実行
     window.onload = function() {
       if (typeof V86Starter === 'undefined') {
         console.error("V86Starterが正しく読み込まれていません。libv86.jsのパスを確認してください。");
@@ -29,16 +28,16 @@
       }
 
       const emulator = new V86Starter({
-        wasm_path: "./v86.wasm",  // wasmバイナリのパス
-        memory_size: 512 * 1024 * 1024,  // メモリ設定
-        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリ設定
-        screen_container: document.getElementById("screen"),  // 描画先のcanvas
+        wasm_path: "./v86.wasm",  // wasmファイルのパス
+        memory_size: 512 * 1024 * 1024,  // メモリ設定（512MB）
+        vga_memory_size: 8 * 1024 * 1024,  // VGAメモリ（8MB）
+        screen_container: document.getElementById("screen"),  // 描画先canvas
         bios: { url: "./bios/seabios.bin" },  // BIOSのパス
         vga_bios: { url: "./bios/vgabios.bin" },  // VGA BIOSのパス
-        autostart: false,  // 自動起動オプション
+        autostart: false,  // 自動起動を無効化
       });
 
-      // ISOファイルが選択されたときに仮想CDを作成して起動
+      // ISOファイルが選択された時の処理
       document.getElementById("iso").addEventListener("change", function(e) {
         const file = e.target.files[0];
         if (file) {
