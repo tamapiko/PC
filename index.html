@@ -52,8 +52,8 @@
     <div id="output"></div>
   </div>
 
-  <!-- v86.jsライブラリの読み込み -->
-  <script src="https://unpkg.com/v86/v86.js"></script>
+  <!-- v86.jsライブラリの読み込み (jsdelivr CDNを使用) -->
+  <script src="https://cdn.jsdelivr.net/gh/copy/v86/v86.js"></script>
   <script>
     function loadAndRunISO() {
       const fileInput = document.getElementById('upload-input');
@@ -65,6 +65,8 @@
       }
       
       const file = fileInput.files[0];
+      
+      console.log('選択されたファイル:', file.name, file.type);  // デバッグ用にファイルの情報を出力
       
       if (file.type !== 'application/x-iso9660-image') {
         outputDiv.innerHTML = 'ISOファイルを選択してください。';
